@@ -1,6 +1,6 @@
 {
   "name": "node-common-dock-ab2",
-  "version": "0.2.6",
+  "version": "0.2.8",
   "description": "Scaffold boiler-plate from embedded templates/server",
   "main": "src/index.js",
   "bin": {

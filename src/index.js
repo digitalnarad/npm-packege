@@ -41,11 +41,11 @@ async function mergePackageJson(targetDir) {
   console.log("Updated package.json");
 }
 
-async function copyTemplateFiles(targetDir) {
-  const entries = await fsp.readdir(TEMPLATE_DIR, { withFileTypes: true });
+async function copyTemplateFiles(targetDir, templateDir = TEMPLATE_DIR) {
+  const entries = await fsp.readdir(templateDir, { withFileTypes: true });
 
   for (const entry of entries) {
-    const srcPath = path.join(TEMPLATE_DIR, entry.name);
+    const srcPath = path.join(templateDir, entry.name);
     const destPath = path.join(targetDir, entry.name);
 
     if (entry.name === "package.json") {
@@ -92,9 +92,10 @@ program
 
     if (!fs.existsSync(absTarget)) {
       await fsp.mkdir(absTarget, { recursive: true });
-    } else {
-      // If dir exists and is not empty, maybe warn?
-      // For now, we proceed as we are merging.
+    } else if (fs.existsSync(path.join(absTarget, "src"))) {
+      throw new Error("Target directory src already exists");
+    } else if (fs.existsSync(path.join(absTarget, ".env.example"))) {
+      throw new Error("Target directory .env.example already exists");
     }
 
     console.log(`Scaffolding in ${absTarget}...`);
@@ -108,7 +109,7 @@ program
       console.log("  npm install");
       console.log("  npm run dev");
     } catch (err) {
-      console.error("Error scaffolding project:", err);
+      console.error("Error scaffolding project:", err?.message || err);
     }
   });
 
